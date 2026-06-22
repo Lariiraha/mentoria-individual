@@ -335,6 +335,7 @@ function coletarDados(status){
   const fat = document.querySelector('input[name=faturamento]:checked');
   const alu = document.querySelector('input[name=aluno]:checked');
   return {
+    origem:      'formulario',  // identifica que este POST veio do formulário (não do webhook)
     id:          leadId,
     nome:        document.getElementById('nome').value.trim(),
     whatsapp:    w ? ('+55 ' + w) : '',
