@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aplicação · Mentoria Individual Lari Iraha</title>
+<meta name="description" content="Aplicação para a Mentoria Individual da Lari Iraha.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ===================================================================
+     ⚙️  ÁREA DE CONFIGURAÇÃO RÁPIDA (cores) — pode mexer à vontade
+     =================================================================== */
+  :root{
+    --roxo: #673AB7;          /* roxo dos botões e da escrita digitada */
+    --roxo-escuro: #57309C;   /* roxo do hover */
+    --roxo-linha: #C4B5FD;    /* lilás das linhas dos campos */
+    --texto: #263238;         /* textos/títulos (perguntas) */
+    --texto-corpo: #6B7280;   /* textos de apoio (cinza) */
+    --linha: #E5E7EB;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ min-height:100%; }
+  body{
+    font-family:'Lato', system-ui, -apple-system, sans-serif;
+    background:#FFFFFF;
+    color:var(--texto);
+    min-height:100vh;
+    padding:26px 22px 60px;
+  }
+
+  /* ---------- Logotipo no topo ---------- */
+  .topo{ max-width:920px; margin:0 auto 10px; }
+  .topo img.logo{ height:58px; width:auto; display:block; }
+
+  /* ---------- Container central ---------- */
+  .container{ max-width:920px; margin:0 auto; }
+
+  /* Em telas largas (computador), a logo fica no canto, AO LADO do banner */
+  @media (min-width:1100px){
+    body{ position:relative; }
+    .topo{ position:absolute; top:30px; left:44px; margin:0; max-width:none; }
+    .topo img.logo{ height:64px; }
+  }
+
+  .etapa{ display:none; animation:aparece .3s ease; }
+  .etapa.ativa{ display:block; }
+  @keyframes aparece{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ===================================================================
+     TELA DE BOAS-VINDAS (alinhada à esquerda, com banner largo)
+     =================================================================== */
+  .bem-vindo{ max-width:840px; margin:0 auto; }
+  .banner-img{
+    width:100%; max-height:480px; object-fit:cover;
+    border-radius:14px; margin-bottom:26px; background:#F3F0F8;
+    display:block;
+  }
+  .bem-vindo h1{ font-size:30px; font-weight:600; margin-bottom:20px; }
+  .bem-vindo p{ font-size:16px; color:var(--texto-corpo); line-height:1.7; margin-bottom:16px; }
+  .bem-vindo p strong{ color:var(--texto); font-weight:600; }
+
+  /* ===================================================================
+     TELAS DE PERGUNTA (centralizadas, estilo minimalista)
+     =================================================================== */
+  .pergunta-bloco{
+    max-width:880px; margin:0 auto; text-align:left;
+    min-height:calc(100vh - 90px); display:flex; flex-direction:column; justify-content:center;
+  }
+  .pergunta{ font-size:26px; font-weight:400; line-height:1.35; margin-bottom:8px; color:var(--texto); }
+  .pergunta strong{ font-weight:700; }
+  .ajuda{ font-size:15px; font-style:italic; color:var(--texto-corpo); margin-bottom:30px; }
+  .dica{ font-size:13px; color:var(--texto-corpo); margin-top:10px; }
+  .dica strong{ color:var(--texto); }
+
+  /* Campos com linha embaixo (não caixa) */
+  .campo{ max-width:780px; margin:0; }
+  input[type=text], input[type=tel]{
+    width:100%; padding:10px 4px; font-size:20px; text-align:left;
+    border:none; border-bottom:2px solid var(--roxo-linha);
+    font-family:inherit; color:var(--roxo); font-weight:500; background:transparent;
+  }
+  input:focus{ outline:none; border-bottom-color:var(--roxo); }
+  input::placeholder{ color:#B9A7E6; }
+
+  textarea{
+    width:100%; padding:12px 4px; font-size:17px;
+    border:none; border-bottom:2px solid var(--roxo-linha);
+    font-family:inherit; color:var(--roxo); font-weight:500; background:transparent;
+    min-height:90px; resize:vertical; text-align:left;
+  }
+  textarea:focus{ outline:none; border-bottom-color:var(--roxo); }
+  textarea::placeholder{ color:#B9A7E6; }
+
+  /* Campo de telefone com bandeira */
+  .campo-tel{ display:flex; align-items:center; gap:10px; max-width:380px; margin:0;
+    border-bottom:2px solid var(--roxo-linha); padding-bottom:2px; }
+  .campo-tel:focus-within{ border-bottom-color:var(--roxo); }
+  .campo-tel .bandeira{ font-size:22px; }
+  .campo-tel .ddi{ font-size:18px; color:var(--texto-corpo); font-weight:500; }
+  .campo-tel input{ border:none; text-align:left; padding-left:0; }
+
+  /* Opções clicáveis (faturamento / já é aluno) */
+  .opcoes{ max-width:810px; margin:0; display:flex; flex-direction:column; gap:11px; text-align:left; }
+  .opcao{
+    display:flex; align-items:center; gap:13px;
+    padding:12px 16px; border:1.5px solid var(--roxo-linha); border-radius:10px;
+    cursor:pointer; transition:all .15s; font-size:16px; color:var(--roxo);
+  }
+  .opcao:hover{ background:#FAF8FE; }
+  .opcao input{ display:none; }
+  .opcao .letra{
+    width:26px; height:26px; border-radius:50%; background:#EDE7F6; color:var(--roxo);
+    flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; transition:all .15s;
+  }
+  .opcao:has(input:checked){ border-color:var(--roxo); background:#F6F1FE; }
+  .opcao:has(input:checked) .letra{ background:var(--roxo); color:#fff; }
+
+  .erro-msg{ color:#DC2626; font-size:13px; margin-top:14px; display:none; }
+  .erro-msg.show{ display:block; }
+
+  /* ---------- Botões ---------- */
+  button{ font-family:inherit; cursor:pointer; border:none; font-weight:600; transition:all .15s; }
+  .btn-principal{
+    background:var(--roxo); color:#fff; padding:11px 24px; font-size:18px; font-weight:400;
+    border-radius:8px; margin-top:30px; display:inline-flex; align-items:center; gap:12px;
+  }
+  .seta{ font-size:1.6em; line-height:1; font-weight:300; }
+  .btn-principal:hover{ background:var(--roxo-escuro); }
+  .btn-principal:disabled{ opacity:.6; cursor:not-allowed; }
+  .btn-voltar{
+    background:transparent; color:var(--texto-corpo); padding:13px 16px; font-size:15px;
+    border-radius:9px; margin-top:30px;
+  }
+  .btn-voltar:hover{ color:var(--roxo); }
+  .nav-centro{ text-align:left; }
+  .nav-esquerda{ text-align:left; }
+  .nav-centro .btn-voltar{ padding-left:0; }
+
+  /* ===================================================================
+     TELA FINAL
+     =================================================================== */
+  .final{ max-width:620px; margin:0 auto; text-align:center; padding-top:30px; }
+  .final .aviao{ margin-bottom:26px; }
+  .final h2{ font-size:24px; font-weight:700; color:var(--texto); margin-bottom:6px; }
+  .final .final-grande{ font-size:23px; font-weight:400; color:var(--texto); line-height:1.4; margin-bottom:20px; }
+  .final p{ font-size:16px; color:var(--texto-corpo); line-height:1.6; margin-bottom:34px; }
+  .btn-whats{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    background:var(--roxo); color:#fff; padding:13px 30px; font-size:17px;
+    border-radius:8px; text-decoration:none; font-weight:400;
+  }
+  .btn-whats:hover{ background:var(--roxo-escuro); }
+
+  .spinner{
+    width:17px; height:17px; border:3px solid rgba(255,255,255,.4);
+    border-top-color:#fff; border-radius:50%; display:inline-block;
+    animation:gira .7s linear infinite;
+  }
+  @keyframes gira{ to{ transform:rotate(360deg); } }
+
+  /* ---------- Responsivo ---------- */
+  @media (max-width:560px){
+    .bem-vindo h1{ font-size:24px; }
+    .pergunta{ font-size:21px; }
+    body{ padding:20px 18px 50px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 🖼️ SUA LOGO: basta colocar um arquivo chamado "logo.png" nesta pasta.
+       Enquanto não houver, aparece um espaço de exemplo. -->
+  <div class="topo">
+    <img class="logo" src="logo.png" alt="Lari Iraha"
+         onerror="this.onerror=null;this.src='https://placehold.co/200x108/EFE9F5/8B5CF6?text=Sua+logo+aqui';">
+  </div>
+
+  <div class="container">
+
+    <!-- ===== ETAPA 0: BOAS-VINDAS ===== -->
+    <div class="etapa ativa" data-etapa="0">
+      <div class="bem-vindo">
+        <!-- 🖼️ SEU BANNER: basta colocar um arquivo chamado "banner.png" nesta pasta.
+             Enquanto não houver, aparece um espaço de exemplo. -->
+        <img class="banner-img" src="banner.png" alt="Mentoria Individual"
+             onerror="this.onerror=null;this.src='https://placehold.co/840x420/EFE9F5/8B5CF6?text=Seu+banner+aqui';">
+        <h1>Seja bem-vindo(a) 🔥</h1>
+        <p>Você está a um passo de mudar o rumo das suas vendas!</p>
+        <p>Este formulário é uma <strong>aplicação para a Mentoria Individual da Lari Iraha</strong>. Ao preenchê-lo, você demonstra <strong>interesse em ser acompanhado(a) de forma próxima e estratégica</strong>.</p>
+        <p>Meu time vai analisar cada resposta com cuidado para entender seu momento atual, seus desafios e onde você quer chegar e entrarão em contato com você em seguida.</p>
+        <p><strong>Sendo assim, preencha o formulário abaixo! 💜</strong></p>
+        <div class="nav-esquerda">
+          <button class="btn-principal" onclick="proxima()">Começar<span class="seta">→</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ETAPA 1: NOME ===== -->
+    <div class="etapa" data-etapa="1">
+      <div class="pergunta-bloco">
+        <div class="pergunta">Seu <strong>nome</strong> completo</div>
+        <div class="campo">
+          <input type="text" id="nome" placeholder="Sua resposta..." autocomplete="name">
+        </div>
+        <div class="erro-msg" id="erro-nome">Por favor, preencha seu nome.</div>
+        <div class="nav-centro">
+          <button class="btn-principal" onclick="proxima()">Avançar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ETAPA 2: WHATSAPP ===== -->
+    <div class="etapa" data-etapa="2">
+      <div class="pergunta-bloco">
+        <div class="pergunta">Qual o <strong>número do seu WhatsApp</strong> com DDD?</div>
+        <div class="campo-tel">
+          <span class="bandeira">🇧🇷</span>
+          <span class="ddi">+55</span>
+          <input type="tel" id="whatsapp" placeholder="( 00 ) 00000-0000" autocomplete="tel">
+        </div>
+        <div class="erro-msg" id="erro-whatsapp">Informe um WhatsApp válido com DDD.</div>
+        <div class="nav-centro">
+          <button class="btn-principal" onclick="proxima()">Avançar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ETAPA 3: SOBRE O NEGÓCIO ===== -->
+    <div class="etapa" data-etapa="3">
+      <div class="pergunta-bloco">
+        <div class="pergunta"><strong>Agora sobre você</strong> e seu modelo de negócio atual</div>
+        <div class="ajuda">Qual nicho trabalha? Já vende em marketplace? Quais? Me conte um pouco mais sobre.</div>
+        <div class="campo">
+          <textarea id="negocio" placeholder="Sua resposta..."></textarea>
+        </div>
+        <div class="dica">Aperte <strong>Shift</strong> + <strong>Enter</strong> para quebrar a linha.</div>
+        <div class="erro-msg" id="erro-negocio">Conte um pouquinho sobre seu negócio.</div>
+        <div class="nav-centro">
+          <button class="btn-principal" onclick="proxima()">Avançar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ETAPA 4: FATURAMENTO ===== -->
+    <div class="etapa" data-etapa="4">
+      <div class="pergunta-bloco">
+        <div class="pergunta">Qual sua <strong>média de faturamento mensal</strong>?</div>
+        <div class="opcoes">
+          <label class="opcao"><input type="radio" name="faturamento" value="A) Começando do zero, não faturo nada ainda"><span class="letra">A</span>Começando do zero, não faturo nada ainda</label>
+          <label class="opcao"><input type="radio" name="faturamento" value="B) Entre 5 mil e 10 mil"><span class="letra">B</span>Entre 5 mil e 10 mil</label>
+          <label class="opcao"><input type="radio" name="faturamento" value="C) Entre 10 mil e 30 mil"><span class="letra">C</span>Entre 10 mil e 30 mil</label>
+          <label class="opcao"><input type="radio" name="faturamento" value="D) Entre 30 e 50 mil"><span class="letra">D</span>Entre 30 e 50 mil</label>
+          <label class="opcao"><input type="radio" name="faturamento" value="E) Entre 50 mil e 100 mil"><span class="letra">E</span>Entre 50 mil e 100 mil</label>
+          <label class="opcao"><input type="radio" name="faturamento" value="F) Acima de 100 mil"><span class="letra">F</span>Acima de 100 mil</label>
+        </div>
+        <div class="erro-msg" id="erro-faturamento">Selecione uma faixa de faturamento.</div>
+        <div class="nav-centro">
+          <button class="btn-principal" onclick="proxima()">Avançar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ETAPA 5: JÁ É ALUNO ===== -->
+    <div class="etapa" data-etapa="5">
+      <div class="pergunta-bloco">
+        <div class="pergunta">Já é <strong>aluno(a) de algum outro programa da Lari</strong>? Qual?</div>
+        <div class="opcoes">
+          <label class="opcao"><input type="radio" name="aluno" value="A) Sim, Mentoria em Grupo"><span class="letra">A</span>Sim, aluno(a) da Mentoria em Grupo</label>
+          <label class="opcao"><input type="radio" name="aluno" value="B) Sim, Shopee Iniciante"><span class="letra">B</span>Sim, aluno(a) do Shopee Iniciante</label>
+          <label class="opcao"><input type="radio" name="aluno" value="C) Sim, Ebook do Produto à Gestão"><span class="letra">C</span>Sim, Ebook do Produto à Gestão</label>
+          <label class="opcao"><input type="radio" name="aluno" value="D) Sim, Calculadora de ROAS"><span class="letra">D</span>Sim, Calculadora de ROAS</label>
+          <label class="opcao"><input type="radio" name="aluno" value="E) Não sou aluno(a) de nenhum treinamento"><span class="letra">E</span>Não sou aluno(a) de nenhum treinamento</label>
+        </div>
+        <div class="erro-msg" id="erro-aluno">Selecione uma opção.</div>
+        <div class="nav-centro">
+          <button class="btn-principal" id="btn-enviar" onclick="enviar()"><span class="check">✓</span> Enviar respostas</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ETAPA FINAL: OBRIGADO ===== -->
+    <div class="etapa" data-etapa="6">
+      <div class="final">
+        <div class="aviao">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="#1F2430" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.5 11.8 21 3.2c.6-.3 1.2.3.9.9l-8.6 18.5c-.3.6-1.1.5-1.3-.1l-2.2-7.1c-.05-.17-.18-.3-.35-.35l-7.1-2.2c-.6-.2-.7-1-.1-1.3Z"/>
+          </svg>
+        </div>
+        <h2>Parabéns pela sua aplicação! 🎉</h2>
+        <p class="final-grande">Recebemos suas respostas! O time já vai analisá-las com atenção.</p>
+        <p>Em breve entraremos em contato para te explicar os próximos passos da Mentoria Individual.</p>
+        <!-- 📱 TROQUE o número e a mensagem abaixo pelo WhatsApp do seu time comercial -->
+        <a class="btn-whats" id="link-whats"
+           href="https://wa.me/5513991955773?text=Oi!%20Acabei%20de%20preencher%20a%20aplica%C3%A7%C3%A3o%20da%20Mentoria%20Individual%20e%20quero%20furar%20a%20fila%20de%20espera."
+           target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M.05 24l1.7-6.2A11.9 11.9 0 1112 24a11.9 11.9 0 01-5.7-1.45L.05 24zM6.6 20.1l.37.22a9.9 9.9 0 005.05 1.38 9.9 9.9 0 10-9.9-9.9c0 1.8.48 3.5 1.4 5.05l.24.4-1 3.65 3.84-.8zM18 14.4c-.07-.12-.26-.2-.55-.34s-1.7-.84-1.97-.94-.46-.14-.65.14-.74.94-.9 1.13-.34.21-.62.07a8.1 8.1 0 01-2.38-1.47 9 9 0 01-1.65-2.05c-.17-.3 0-.45.13-.6s.3-.34.44-.5a2 2 0 00.3-.5.55.55 0 00-.03-.52c-.07-.14-.65-1.57-.9-2.15s-.47-.48-.65-.49h-.56a1.07 1.07 0 00-.77.36 3.25 3.25 0 00-1 2.42 5.64 5.64 0 001.18 3 12.94 12.94 0 004.96 4.38c.7.3 1.24.48 1.66.62a4 4 0 001.84.12 3 3 0 001.96-1.38 2.43 2.43 0 00.17-1.38z"/></svg>
+          Pular a fila de espera e falar direto com time
+        </a>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+
+<script>
+/* ===================================================================
+   ⚙️  COLE AQUI O LINK DO SEU GOOGLE APPS SCRIPT (veja o passo a passo)
+   =================================================================== */
+const URL_PLANILHA = "COLE_AQUI_A_URL_DO_APPS_SCRIPT";
+
+// ID único deste lead — agrupa as respostas parciais na MESMA linha da planilha
+const leadId = (window.crypto && crypto.randomUUID)
+  ? crypto.randomUUID()
+  : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+
+let etapaAtual = 0;
+const totalEtapas = 6;
+
+// Junta tudo que já foi respondido até agora
+function coletarDados(status){
+  const w   = document.getElementById('whatsapp').value.trim();
+  const fat = document.querySelector('input[name=faturamento]:checked');
+  const alu = document.querySelector('input[name=aluno]:checked');
+  return {
+    id:          leadId,
+    nome:        document.getElementById('nome').value.trim(),
+    whatsapp:    w ? ('+55 ' + w) : '',
+    negocio:     document.getElementById('negocio').value.trim(),
+    faturamento: fat ? fat.value : '',
+    aluno:       alu ? alu.value : '',
+    status:      status || 'parcial'
+  };
+}
+
+// Envia/atualiza o lead na planilha — mesmo que ainda esteja incompleto
+function salvarLead(status){
+  try{
+    fetch(URL_PLANILHA, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(coletarDados(status))
+    });
+  }catch(e){}
+}
+
+function mostrar(n){
+  document.querySelectorAll('.etapa').forEach(e => e.classList.remove('ativa'));
+  document.querySelector('.etapa[data-etapa="'+n+'"]').classList.add('ativa');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function limpaErros(){ document.querySelectorAll('.erro-msg').forEach(e=>e.classList.remove('show')); }
+
+function valida(n){
+  limpaErros();
+  if(n===1 && !document.getElementById('nome').value.trim()){ erro('erro-nome'); return false; }
+  if(n===2){
+    const w = document.getElementById('whatsapp').value.replace(/\D/g,'');
+    if(w.length < 10){ erro('erro-whatsapp'); return false; }
+  }
+  if(n===3 && !document.getElementById('negocio').value.trim()){ erro('erro-negocio'); return false; }
+  if(n===4 && !document.querySelector('input[name=faturamento]:checked')){ erro('erro-faturamento'); return false; }
+  if(n===5 && !document.querySelector('input[name=aluno]:checked')){ erro('erro-aluno'); return false; }
+  return true;
+}
+function erro(id){ document.getElementById(id).classList.add('show'); }
+
+function proxima(){
+  if(!valida(etapaAtual)) return;
+  // a cada pergunta respondida, já salva/atualiza o lead (captura parcial)
+  if(etapaAtual >= 1){ salvarLead('parcial'); }
+  if(etapaAtual < totalEtapas){ etapaAtual++; mostrar(etapaAtual); }
+}
+function anterior(){ if(etapaAtual > 0){ etapaAtual--; mostrar(etapaAtual); } }
+
+function enviar(){
+  if(!valida(5)) return;
+  const btn = document.getElementById('btn-enviar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+
+  fetch(URL_PLANILHA, {
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(coletarDados('completo'))
+  })
+  .then(()=>{ etapaAtual = 6; mostrar(6); })
+  .catch(()=>{ etapaAtual = 6; mostrar(6); });
+}
+
+// Avançar apertando Enter nos campos de texto
+document.querySelectorAll('input[type=text], input[type=tel]').forEach(inp=>{
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); proxima(); } });
+});
+// No campo longo: Enter avança, Shift+Enter quebra a linha
+document.getElementById('negocio').addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); proxima(); }
+});
+</script>
+</body>
+</html>
