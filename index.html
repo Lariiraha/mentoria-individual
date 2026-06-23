@@ -321,6 +321,12 @@
    =================================================================== */
 const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbzPUhhzxBpS8ejzFjyFp-osA3k3YtW6bU_IqCu7BJtVBiRITK84lslNIfUKWDPgKzqP/exec";
 
+/* ===================================================================
+   ⚙️  ENDPOINT DO CRM LeadUp (já configurado)
+   =================================================================== */
+const URL_CRM = "https://exldxdpcngegxdzhqrcf.supabase.co/functions/v1/form-lead";
+const CRM_FUNIL = "Form Interesse Individual";
+
 // ID único deste lead — agrupa as respostas parciais na MESMA linha da planilha
 const leadId = (window.crypto && crypto.randomUUID)
   ? crypto.randomUUID()
@@ -348,13 +354,28 @@ function coletarDados(status){
 
 // Envia/atualiza o lead na planilha — mesmo que ainda esteja incompleto
 function salvarLead(status){
+  var dados = coletarDados(status);
   try{
     fetch(URL_PLANILHA, {
       method:'POST', mode:'no-cors',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify(coletarDados(status))
+      body: JSON.stringify(dados)
     });
   }catch(e){}
+  // >>> Envia pro CRM LeadUp quando a aplicação é concluída <<<
+  if(status === 'completo' || status === 'FUROU FILA'){
+    try{
+      var crm = {
+        funil: CRM_FUNIL,
+        nome: dados.nome,
+        whatsapp: dados.whatsapp,
+        mensagem: 'Negócio: ' + dados.negocio + ' | Faturamento: ' + dados.faturamento + ' | Já é aluno: ' + dados.aluno
+      };
+      var blob = new Blob([JSON.stringify(crm)], {type:'application/json'});
+      if(navigator.sendBeacon) navigator.sendBeacon(URL_CRM, blob);
+      else fetch(URL_CRM, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(crm), keepalive:true});
+    }catch(e){}
+  }
 }
 
 function mostrar(n){
