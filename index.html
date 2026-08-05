@@ -238,8 +238,23 @@
       </div>
     </div>
 
-    <!-- ===== ETAPA 3: SOBRE O NEGÓCIO ===== -->
+    <!-- ===== ETAPA 3: INSTAGRAM ===== -->
     <div class="etapa" data-etapa="3">
+      <div class="pergunta-bloco">
+        <div class="pergunta">Qual o <strong>@ do seu Instagram</strong>?</div>
+        <div class="ajuda">Pessoal ou da sua loja, caso tenha.</div>
+        <div class="campo">
+          <input type="text" id="instagram" placeholder="@seuinstagram" autocapitalize="none" autocorrect="off" spellcheck="false">
+        </div>
+        <div class="erro-msg" id="erro-instagram">Por favor, informe seu @ do Instagram.</div>
+        <div class="nav-centro">
+          <button class="btn-principal" onclick="proxima()">Avançar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ETAPA 4: SOBRE O NEGÓCIO ===== -->
+    <div class="etapa" data-etapa="4">
       <div class="pergunta-bloco">
         <div class="pergunta"><strong>Agora sobre você</strong> e seu modelo de negócio atual</div>
         <div class="ajuda">Qual nicho trabalha? Já vende em marketplace? Quais? Me conte um pouco mais sobre.</div>
@@ -254,8 +269,8 @@
       </div>
     </div>
 
-    <!-- ===== ETAPA 4: FATURAMENTO ===== -->
-    <div class="etapa" data-etapa="4">
+    <!-- ===== ETAPA 5: FATURAMENTO ===== -->
+    <div class="etapa" data-etapa="5">
       <div class="pergunta-bloco">
         <div class="pergunta">Qual sua <strong>média de faturamento mensal</strong>?</div>
         <div class="opcoes">
@@ -273,8 +288,8 @@
       </div>
     </div>
 
-    <!-- ===== ETAPA 5: JÁ É ALUNO ===== -->
-    <div class="etapa" data-etapa="5">
+    <!-- ===== ETAPA 6: JÁ É ALUNO ===== -->
+    <div class="etapa" data-etapa="6">
       <div class="pergunta-bloco">
         <div class="pergunta">Já é <strong>aluno(a) de algum outro programa da Lari</strong>? Qual?</div>
         <div class="opcoes">
@@ -292,7 +307,7 @@
     </div>
 
     <!-- ===== ETAPA FINAL: OBRIGADO ===== -->
-    <div class="etapa" data-etapa="6">
+    <div class="etapa" data-etapa="7">
       <div class="final">
         <div class="aviao">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="#1F2430" xmlns="http://www.w3.org/2000/svg">
@@ -333,7 +348,18 @@ const leadId = (window.crypto && crypto.randomUUID)
   : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2);
 
 let etapaAtual = 0;
-const totalEtapas = 6;
+const totalEtapas = 7;
+
+// Deixa o @ do Instagram padronizado (aceita "loja", "@loja" ou o link completo)
+function normalizaInsta(v){
+  var s = String(v || '').trim();
+  if(!s) return '';
+  s = s.replace(/^(https?:\/\/)?(www\.)?instagram\.com\//i, '') // tira o link (com ou sem https)
+       .replace(/[/?].*$/, '')                                  // tira barra/parâmetros
+       .replace(/^@+/, '')                                      // tira @ repetido
+       .trim();
+  return s ? ('@' + s) : '';
+}
 
 // Junta tudo que já foi respondido até agora
 function coletarDados(status){
@@ -345,6 +371,7 @@ function coletarDados(status){
     id:          leadId,
     nome:        document.getElementById('nome').value.trim(),
     whatsapp:    w ? ('+55 ' + w) : '',
+    instagram:   normalizaInsta(document.getElementById('instagram').value),
     negocio:     document.getElementById('negocio').value.trim(),
     faturamento: fat ? fat.value : '',
     aluno:       alu ? alu.value : '',
@@ -369,7 +396,8 @@ function salvarLead(status){
         funil: CRM_FUNIL,
         nome: dados.nome,
         whatsapp: dados.whatsapp,
-        mensagem: 'Negócio: ' + dados.negocio + ' | Faturamento: ' + dados.faturamento + ' | Já é aluno: ' + dados.aluno
+        instagram: dados.instagram,
+        mensagem: 'Instagram: ' + dados.instagram + ' | Negócio: ' + dados.negocio + ' | Faturamento: ' + dados.faturamento + ' | Já é aluno: ' + dados.aluno
       };
       fetch(URL_CRM, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(crm)});
     }catch(e){}
@@ -391,9 +419,10 @@ function valida(n){
     const w = document.getElementById('whatsapp').value.replace(/\D/g,'');
     if(w.length < 10){ erro('erro-whatsapp'); return false; }
   }
-  if(n===3 && !document.getElementById('negocio').value.trim()){ erro('erro-negocio'); return false; }
-  if(n===4 && !document.querySelector('input[name=faturamento]:checked')){ erro('erro-faturamento'); return false; }
-  if(n===5 && !document.querySelector('input[name=aluno]:checked')){ erro('erro-aluno'); return false; }
+  if(n===3 && !document.getElementById('instagram').value.trim()){ erro('erro-instagram'); return false; }
+  if(n===4 && !document.getElementById('negocio').value.trim()){ erro('erro-negocio'); return false; }
+  if(n===5 && !document.querySelector('input[name=faturamento]:checked')){ erro('erro-faturamento'); return false; }
+  if(n===6 && !document.querySelector('input[name=aluno]:checked')){ erro('erro-aluno'); return false; }
   return true;
 }
 function erro(id){ document.getElementById(id).classList.add('show'); }
@@ -407,11 +436,11 @@ function proxima(){
 function anterior(){ if(etapaAtual > 0){ etapaAtual--; mostrar(etapaAtual); } }
 
 function enviar(){
-  if(!valida(5)) return;
+  if(!valida(6)) return;
   // salva o envio final em segundo plano (não trava a tela)
   salvarLead('completo');
   // mostra a tela de "obrigado" na hora
-  etapaAtual = 6; mostrar(6);
+  etapaAtual = 7; mostrar(7);
 }
 
 // Avançar apertando Enter nos campos de texto
